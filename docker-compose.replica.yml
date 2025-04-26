@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mongodb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MONGO_VERSION: latest
+    container_name: careminds-mongodb-replica
+    ports:
+      - "27019:27017"
+    environment:
+      - MONGO_REPLICA_PORT=27017
+      - MONGO_REPLICA_HOST=mongodb
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+      - MONGO_INITDB_DATABASE=careminds
+    volumes:
+      - mongodb_replica_data:/data/db
+    networks:
+      - careminds-network
+
+networks:
+  careminds-network:
+    driver: bridge
+
+volumes:
+  mongodb_replica_data: 
