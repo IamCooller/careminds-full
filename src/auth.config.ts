@@ -9,6 +9,7 @@ export default {
 	pages: {
 		signIn: "/login",
 	},
+	trustHost: true,
 	providers: [
 		CredentialsProvider({
 			name: "Sign in",

@@ -12,9 +12,59 @@ services:
       - MONGO_INITDB_DATABASE=careminds
     volumes:
       - mongodb_data:/data/db
+      - ./mongodb-keyfile:/mongodb-keyfile
     networks:
       - careminds-network
-    command: mongod --auth
+    command: mongod --replSet rs0 --bind_ip_all --auth --keyFile /mongodb-keyfile/mongodb-keyfile
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  mongodb-setup:
+    image: mongo:latest
+    restart: "no"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - careminds-network
+    volumes:
+      - ./mongodb-keyfile:/mongodb-keyfile
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password123
+    entrypoint: >
+      bash -c "
+        echo 'Waiting for MongoDB to start...'
+        sleep 10
+        echo 'Setting up replica set...'
+        mongosh --host mongodb:27017 -u admin -p password123 --authenticationDatabase admin --eval 'rs.initiate({_id: \"rs0\", members: [{_id: 0, host: \"mongodb:27017\"}]})'
+        echo 'Replica set initialized'
+      "
+
+  app:
+    build: .
+    ports:
+      - "3020:3000"
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=mongodb://admin:password123@mongodb:27017/careminds?authSource=admin&directConnection=true&replicaSet=rs0
+      - NEXTAUTH_URL=http://localhost:3020
+      - NEXTAUTH_URL_INTERNAL=http://localhost:3000
+      - NEXT_PUBLIC_APP_URL=http://localhost:3020
+      - AUTH_TRUST_HOST=true
+    container_name: careminds-app
+    depends_on:
+      mongodb-setup:
+        condition: service_completed_successfully
+    networks:
+      - careminds-network
 
 networks:
   careminds-network:

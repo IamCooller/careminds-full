@@ -9,7 +9,7 @@ const walletSchema = z.object({
 });
 
 // Update wallet
-export async function PATCH(req: NextRequest, { params }: { params: { walletId: string } }) {
+export async function PATCH(req: NextRequest, context: { params: Promise<{ walletId: string }> }) {
 	try {
 		// Get the authenticated user
 		const session = await auth();
@@ -19,6 +19,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { walletId: 
 		}
 
 		// Get the wallet ID from the params
+		const params = await context.params;
 		const walletId = params.walletId;
 
 		// Check if the wallet exists and belongs to the user
@@ -61,7 +62,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { walletId: 
 }
 
 // Delete wallet
-export async function DELETE(req: NextRequest, { params }: { params: { walletId: string } }) {
+export async function DELETE(req: NextRequest, context: { params: Promise<{ walletId: string }> }) {
 	try {
 		// Get the authenticated user
 		const session = await auth();
@@ -71,6 +72,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { walletId:
 		}
 
 		// Get the wallet ID from the params
+		const params = await context.params;
 		const walletId = params.walletId;
 
 		// Check if the wallet exists and belongs to the user

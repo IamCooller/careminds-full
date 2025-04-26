@@ -7,16 +7,11 @@ import { PortfolioDisplay } from "./_components/sections/PortfolioDisplay";
 import { WalletModal } from "./_components/modals/WalletModal";
 import { AssetModal } from "./_components/modals/AssetModal";
 import { WalletWithStats } from "@/types";
-type SearchParams = {
-	wallet?: string;
-	showWalletModal?: string;
-	showAssetModal?: string;
-	assetId?: string;
-};
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
 export default async function DashboardPage({ searchParams }: { searchParams: SearchParams }) {
 	const session = await auth();
-	const { wallet, showWalletModal, showAssetModal, assetId } = searchParams;
+	const { wallet, showWalletModal, showAssetModal, assetId } = await searchParams;
 	// Check if user is authenticated
 	if (!session || !session.user) {
 		redirect("/login");
@@ -48,13 +43,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Se
 	});
 
 	// Get the selected wallet
-	const selectedWalletId = wallet || (walletsWithStats.length > 0 ? walletsWithStats[0].id : "");
+	const walletId = Array.isArray(wallet) ? wallet[0] : wallet;
+	const selectedWalletId = (walletId || (walletsWithStats.length > 0 ? walletsWithStats[0].id : "")) as string;
 	const selectedWallet = walletsWithStats.find((w) => w.id === selectedWalletId);
 
 	// Get the asset to edit if assetId is provided
 	let assetToEdit;
-	if (assetId && selectedWallet) {
-		assetToEdit = selectedWallet.assets.find((a) => a.id === assetId);
+	const assetIdStr = Array.isArray(assetId) ? assetId[0] : assetId;
+	if (assetIdStr && selectedWallet) {
+		assetToEdit = selectedWallet.assets.find((a) => a.id === assetIdStr);
 	}
 
 	return (

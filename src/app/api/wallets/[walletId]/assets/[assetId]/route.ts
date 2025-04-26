@@ -26,7 +26,7 @@ async function verifyWalletOwnership(walletId: string, userId: string) {
 }
 
 // Update asset
-export async function PATCH(req: NextRequest, { params }: { params: { walletId: string; assetId: string } }) {
+export async function PATCH(req: NextRequest, context: { params: Promise<{ walletId: string; assetId: string }> }) {
 	try {
 		// Get the authenticated user
 		const session = await auth();
@@ -36,7 +36,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { walletId: 
 		}
 
 		// Get IDs from the params
-		const { walletId, assetId } = params;
+		const { walletId, assetId } = await context.params;
 
 		// Verify wallet ownership
 		const wallet = await verifyWalletOwnership(walletId, session.user.id);
@@ -89,7 +89,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { walletId: 
 }
 
 // Delete asset
-export async function DELETE(req: NextRequest, { params }: { params: { walletId: string; assetId: string } }) {
+export async function DELETE(req: NextRequest, context: { params: Promise<{ walletId: string; assetId: string }> }) {
 	try {
 		// Get the authenticated user
 		const session = await auth();
@@ -99,7 +99,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { walletId:
 		}
 
 		// Get IDs from the params
-		const { walletId, assetId } = params;
+		const { walletId, assetId } = await context.params;
 
 		// Verify wallet ownership
 		const wallet = await verifyWalletOwnership(walletId, session.user.id);

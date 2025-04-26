@@ -13,7 +13,7 @@ const assetSchema = z.object({
 	currentPrice: z.number().positive("Current price must be positive"),
 });
 
-export async function GET(req: NextRequest, { params }: { params: { walletId: string } }) {
+export async function GET(req: NextRequest, context: { params: Promise<{ walletId: string }> }) {
 	try {
 		// Get the authenticated user
 		const session = await auth();
@@ -23,6 +23,7 @@ export async function GET(req: NextRequest, { params }: { params: { walletId: st
 		}
 
 		// Get the wallet ID from the params
+		const params = await context.params;
 		const walletId = params.walletId;
 
 		// Check if the wallet exists and belongs to the user
@@ -51,7 +52,7 @@ export async function GET(req: NextRequest, { params }: { params: { walletId: st
 	}
 }
 
-export async function POST(req: NextRequest, { params }: { params: { walletId: string } }) {
+export async function POST(req: NextRequest, context: { params: Promise<{ walletId: string }> }) {
 	try {
 		// Get the authenticated user
 		const session = await auth();
@@ -61,6 +62,7 @@ export async function POST(req: NextRequest, { params }: { params: { walletId: s
 		}
 
 		// Get the wallet ID from the params
+		const params = await context.params;
 		const walletId = params.walletId;
 
 		// Check if the wallet exists and belongs to the user

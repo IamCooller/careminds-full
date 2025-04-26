@@ -4,9 +4,7 @@ services:
   mongodb:
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        MONGO_VERSION: latest
+      dockerfile: Dockerfile.mongo
     container_name: careminds-mongodb-replica
     ports:
       - "27019:27017"
@@ -18,6 +16,23 @@ services:
       - MONGO_INITDB_DATABASE=careminds
     volumes:
       - mongodb_replica_data:/data/db
+    networks:
+      - careminds-network
+  
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3020:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=mongodb://admin:password123@mongodb:27017/careminds?authSource=admin&directConnection=true
+    container_name: careminds-app
+    depends_on:
+      - mongodb
     networks:
       - careminds-network
 

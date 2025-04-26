@@ -31,7 +31,7 @@ A full-stack application that allows users to manage multiple investment wallets
 1. **Clone the repository**
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/IamCooller/careminds-full
 cd careminds-full
 ```
 
@@ -72,7 +72,7 @@ yarn dev
 1. **Clone the repository**
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/IamCooller/careminds-full
 cd careminds-full
 ```
 
